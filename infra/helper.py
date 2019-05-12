@@ -321,7 +321,7 @@ def _workdir_from_dockerfile(project_name):
 
 def docker_run(run_args, print_output=True):
   """Call `docker run`."""
-  command = ['docker', 'run', '--rm', '-i', '--privileged']
+  command = ['docker', 'run', '--rm', '--privileged']
   command.extend(run_args)
 
   print('Running:', _get_command_string(command))
@@ -432,7 +432,7 @@ def build_fuzzers(args):
     env.append('MSAN_LIBS_PATH=' + '/work/msan')
 
   command = (
-      ['docker', 'run', '--rm', '-i', '--cap-add', 'SYS_PTRACE'] +
+      ['docker', 'run', '--rm', '--cap-add', 'SYS_PTRACE'] +
       _env_to_docker_args(env))
   if args.source_path:
     workdir = _workdir_from_dockerfile(args.project_name)
