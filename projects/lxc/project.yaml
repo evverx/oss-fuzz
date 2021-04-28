@@ -9,4 +9,5 @@ sanitizers:
 auto_ccs:
   - stgraber@stgraber.org
   - evverx@gmail.com
+  - evvers@ya.ru
 main_repo: "https://github.com/lxc/lxc"
