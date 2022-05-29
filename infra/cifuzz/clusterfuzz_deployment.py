@@ -218,11 +218,14 @@ class ClusterFuzzLite(BaseClusterFuzzDeployment):
 class OSSFuzz(BaseClusterFuzzDeployment):
   """The OSS-Fuzz ClusterFuzz deployment."""
 
-  # Location of clusterfuzz builds on GCS.
-  CLUSTERFUZZ_BUILDS = 'clusterfuzz-builds'
-
   # Zip file name containing the corpus.
   CORPUS_ZIP_NAME = 'public.zip'
+
+  def __init__(self, config, workspace):
+    super().__init__(config, workspace)
+    self.clusterfuzz_builds = 'clusterfuzz-builds'
+    if self.config.architecture == 'i386':
+      self.clusterfuzz_builds += '-i386'
 
   def get_latest_build_name(self):
     """Gets the name of the latest OSS-Fuzz build of a project.
@@ -233,7 +236,7 @@ class OSSFuzz(BaseClusterFuzzDeployment):
     version_file = (
         f'{self.config.oss_fuzz_project_name}-{self.config.sanitizer}'
         '-latest.version')
-    version_url = utils.url_join(utils.GCS_BASE_URL, self.CLUSTERFUZZ_BUILDS,
+    version_url = utils.url_join(utils.GCS_BASE_URL, self.clusterfuzz_builds,
                                  self.config.oss_fuzz_project_name,
                                  version_file)
     try:
@@ -263,7 +266,7 @@ class OSSFuzz(BaseClusterFuzzDeployment):
 
     logging.info('Downloading latest build.')
     oss_fuzz_build_url = utils.url_join(utils.GCS_BASE_URL,
-                                        self.CLUSTERFUZZ_BUILDS,
+                                        self.clusterfuzz_builds,
                                         self.config.oss_fuzz_project_name,
                                         latest_build_name)
     if http_utils.download_and_unpack_zip(oss_fuzz_build_url,
