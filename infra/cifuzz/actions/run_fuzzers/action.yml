@@ -46,7 +46,7 @@ inputs:
     default: False
 runs:
   using: 'docker'
-  image: '../../../run_fuzzers.Dockerfile'
+  image: '../../../../run_fuzzers.Dockerfile'
   env:
     OSS_FUZZ_PROJECT_NAME: ${{ inputs.oss-fuzz-project-name }}
     LANGUAGE: ${{ inputs.language }}
