@@ -16,7 +16,38 @@
 # Docker image to run fuzzers for CIFuzz (the run_fuzzers action on GitHub
 # actions).
 
-FROM gcr.io/oss-fuzz-base/cifuzz-base
+FROM gcr.io/oss-fuzz-base/base-runner
+
+RUN apt-get update && \
+    apt-get install -y systemd && \
+    apt-get install -y --no-install-recommends nodejs npm && \
+    wget https://download.docker.com/linux/ubuntu/dists/focal/pool/stable/amd64/docker-ce-cli_20.10.8~3-0~ubuntu-focal_amd64.deb -O /tmp/docker-ce.deb && \
+    dpkg -i /tmp/docker-ce.deb && \
+    rm /tmp/docker-ce.deb && \
+    mkdir -p /opt/gcloud && \
+    wget -qO- https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zxv -C /opt/gcloud && \
+    /opt/gcloud/google-cloud-sdk/install.sh --usage-reporting=false --bash-completion=false --disable-installation-options && \
+    apt-get -y install gcc python3-dev && \
+    pip3 install -U crcmod && \
+    apt-get autoremove -y gcc python3-dev
+
+
+ENV PATH=/opt/gcloud/google-cloud-sdk/bin/:$PATH
+ENV OSS_FUZZ_ROOT=/opt/oss-fuzz
+
+# Do this step before copying to make rebuilding faster when developing.
+COPY ./infra/cifuzz/requirements.txt /tmp/requirements.txt
+RUN python3 -m pip install -r /tmp/requirements.txt && rm /tmp/requirements.txt
+
+ADD . ${OSS_FUZZ_ROOT}
+RUN npm install ${OSS_FUZZ_ROOT}/infra/cifuzz
+
+ENV PYTHONUNBUFFERED=1
+
+# Python file to execute when the docker container starts up.
+# We can't use the env var $OSS_FUZZ_ROOT here. Since it's a constant env var,
+# just expand to '/opt/oss-fuzz'.
+ENTRYPOINT ["python3", "/opt/oss-fuzz/infra/cifuzz/cifuzz_combined_entrypoint.py"]
 
 # Python file to execute when the docker container starts up
 # We can't use the env var $OSS_FUZZ_ROOT here. Since it's a constant env var,
