@@ -43,8 +43,10 @@ DEFAULT_ENGINE = 'libfuzzer'
 def _get_sanitizer():
   return os.getenv('SANITIZER', constants.DEFAULT_SANITIZER).lower()
 
+
 def _get_architecture():
   return os.getenv('ARCHITECTURE', constants.DEFAULT_ARCHITECTURE).lower()
+
 
 def _is_dry_run():
   """Returns True if configured to do a dry run."""
@@ -130,6 +132,7 @@ class BaseConfig:
     """Returns False if the configuration is invalid."""
     # Do validation here so that unittests don't need to make a fully-valid
     # config.
+    # pylint: disable=too-many-return-statements
     if not self.workspace:
       logging.error('Must set WORKSPACE.')
       return False
@@ -145,7 +148,8 @@ class BaseConfig:
       return False
 
     if self.architecture == 'i386' and self.sanitizer != 'address':
-      logging.error('ARCHITECTURE=i386 can be used with SANITIZER=address only.')
+      logging.error(
+          'ARCHITECTURE=i386 can be used with SANITIZER=address only.')
       return False
 
     if self.language not in constants.LANGUAGES:
